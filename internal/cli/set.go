@@ -244,7 +244,7 @@ func runSet(cmd *cobra.Command, args []string) error {
 		if providerName == "litellm" {
 			credName = "ANTHROPIC_AUTH_TOKEN"
 		}
-		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s %s", providerName, credName)
+		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), providerName, credName)
 	}
 
 	// Bedrock and Vertex use different auth mechanisms
@@ -371,7 +371,7 @@ func applyProviderConfig(scopeManager *config.ScopeManager, scope config.Scope, 
 		if providerName == "litellm" {
 			credName = "ANTHROPIC_AUTH_TOKEN"
 		}
-		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s %s", providerName, credName)
+		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), providerName, credName)
 	}
 
 	if err := scopeManager.SaveSettings(scope, settings); err != nil {

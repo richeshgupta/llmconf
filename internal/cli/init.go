@@ -2,6 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/huh"
 	"github.com/fatih/color"
@@ -226,13 +228,14 @@ func runInit(cmd *cobra.Command, args []string) error {
 		settings.Env[key] = value
 	}
 
-	// Set apiKeyHelper for providers that use API keys
+	// Set apiKeyHelper for providers that use API keys.
+	// Use absolute binary path so Claude Code can invoke it from /bin/sh regardless of PATH.
 	if provider.Name() == "fireworks" || provider.Name() == "anthropic" || provider.Name() == "litellm" {
 		credName := "ANTHROPIC_API_KEY"
 		if provider.Name() == "litellm" {
 			credName = "ANTHROPIC_AUTH_TOKEN"
 		}
-		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s %s", provider.Name(), credName)
+		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), provider.Name(), credName)
 	}
 
 	// Save settings
@@ -553,6 +556,21 @@ func getCredentialNames(provider providers.Provider) []string {
 		}
 	}
 	return names
+}
+
+// executablePath returns the absolute path of the running llmconf binary.
+// Using an absolute path in apiKeyHelper ensures Claude Code can invoke it
+// even when /bin/sh does not have GOPATH/bin in PATH.
+func executablePath() string {
+	path, err := os.Executable()
+	if err != nil {
+		return "llmconf" // fallback
+	}
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return path
+	}
+	return resolved
 }
 
 func getNonSensitiveCredentialNames(provider providers.Provider) []string {
