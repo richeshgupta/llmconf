@@ -1,0 +1,25 @@
+internal/cli/init.go
+  ab20fcb377aeb37c 5-6,231-232,238,561-575
+internal/cli/set.go
+  ab20fcb377aeb37c 247,374
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "39e4f93a95a44cd605a4d23cc13721f49a5d55de",
+  "prompts": {
+    "ab20fcb377aeb37c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ec255c67-d17f-4aee-b252-665d3efa837e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Richesh Gupta",
+      "messages": [],
+      "total_additions": 22,
+      "total_deletions": 4,
+      "accepted_lines": 22,
+      "overriden_lines": 0
+    }
+  }
+}
