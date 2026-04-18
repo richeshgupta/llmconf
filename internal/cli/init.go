@@ -3,7 +3,9 @@ package cli
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/huh"
 	"github.com/fatih/color"
@@ -558,19 +560,34 @@ func getCredentialNames(provider providers.Provider) []string {
 	return names
 }
 
-// executablePath returns the absolute path of the running llmconf binary.
-// Using an absolute path in apiKeyHelper ensures Claude Code can invoke it
-// even when /bin/sh does not have GOPATH/bin in PATH.
+// executablePath resolves the best stable path for the llmconf binary.
+// Resolution order:
+//  1. exec.LookPath("llmconf") — already in PATH (e.g. /usr/local/bin)
+//  2. $(go env GOPATH)/bin/llmconf — standard `go install` location
+//  3. os.Executable() — absolute path of the currently running binary
 func executablePath() string {
-	path, err := os.Executable()
-	if err != nil {
-		return "llmconf" // fallback
+	// 1. Check PATH first
+	if p, err := exec.LookPath("llmconf"); err == nil {
+		return p
 	}
-	resolved, err := filepath.EvalSymlinks(path)
-	if err != nil {
-		return path
+
+	// 2. Check $(go env GOPATH)/bin
+	if gopath, err := exec.Command("go", "env", "GOPATH").Output(); err == nil {
+		candidate := filepath.Join(strings.TrimSpace(string(gopath)), "bin", "llmconf")
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
 	}
-	return resolved
+
+	// 3. Fall back to the current binary's absolute path
+	if p, err := os.Executable(); err == nil {
+		if resolved, err := filepath.EvalSymlinks(p); err == nil {
+			return resolved
+		}
+		return p
+	}
+
+	return "llmconf"
 }
 
 func getNonSensitiveCredentialNames(provider providers.Provider) []string {
