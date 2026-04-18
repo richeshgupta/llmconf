@@ -201,10 +201,17 @@ func runInit(cmd *cobra.Command, args []string) error {
 	// Clear only provider-specific env vars, preserve user-defined ones
 	clearProviderEnvVars(settings.Env)
 
-	// Generate non-sensitive env vars only
-	// Remove credentials - they will be fetched via apiKeyHelper
+	// Generate non-sensitive env vars only; sensitive credentials are fetched via apiKeyHelper
+	nonSensitiveCreds := make(map[string]string)
+	for _, spec := range provider.RequiredEnvVars() {
+		if !spec.Sensitive {
+			if val, ok := providerConfig.Credentials[spec.Name]; ok && val != "" {
+				nonSensitiveCreds[spec.Name] = val
+			}
+		}
+	}
 	secureConfig := &providers.ProviderConfig{
-		Credentials: make(map[string]string), // Empty - credentials come via apiKeyHelper
+		Credentials: nonSensitiveCreds,
 		Models:      models,
 		ExtraEnv:    providerConfig.ExtraEnv,
 	}
@@ -221,7 +228,11 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	// Set apiKeyHelper for providers that use API keys
 	if provider.Name() == "fireworks" || provider.Name() == "anthropic" || provider.Name() == "litellm" {
-		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s ANTHROPIC_API_KEY", provider.Name())
+		credName := "ANTHROPIC_API_KEY"
+		if provider.Name() == "litellm" {
+			credName = "ANTHROPIC_AUTH_TOKEN"
+		}
+		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s %s", provider.Name(), credName)
 	}
 
 	// Save settings
@@ -538,6 +549,16 @@ func getCredentialNames(provider providers.Provider) []string {
 	}
 	for _, spec := range provider.OptionalEnvVars() {
 		if spec.Sensitive {
+			names = append(names, spec.Name)
+		}
+	}
+	return names
+}
+
+func getNonSensitiveCredentialNames(provider providers.Provider) []string {
+	var names []string
+	for _, spec := range provider.RequiredEnvVars() {
+		if !spec.Sensitive {
 			names = append(names, spec.Name)
 		}
 	}

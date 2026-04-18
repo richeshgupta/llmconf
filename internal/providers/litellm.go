@@ -117,12 +117,10 @@ func (p *LiteLLMProvider) GenerateEnv(config ProviderConfig) (map[string]string,
 	}
 	env["ANTHROPIC_BASE_URL"] = baseURL
 
-	// Auth Token
-	authToken, ok := config.Credentials["ANTHROPIC_AUTH_TOKEN"]
-	if !ok || authToken == "" {
-		return nil, fmt.Errorf("ANTHROPIC_AUTH_TOKEN is required")
+	// Auth Token — optional here; fetched at runtime via apiKeyHelper
+	if authToken, ok := config.Credentials["ANTHROPIC_AUTH_TOKEN"]; ok && authToken != "" {
+		env["ANTHROPIC_AUTH_TOKEN"] = authToken
 	}
-	env["ANTHROPIC_AUTH_TOKEN"] = authToken
 
 	// Model pinning
 	if config.Models != nil {

@@ -221,9 +221,10 @@ func runSet(cmd *cobra.Command, args []string) error {
 	// Preserve user-defined env vars that aren't managed by llmconf
 	clearProviderEnvVars(settings.Env)
 
-	// Generate non-sensitive env vars only (credentials are fetched via apiKeyHelper)
+	// Load non-sensitive credentials from keychain for env var generation
+	storedNonSensitiveCreds, _ := secretStore.LoadConfig(provider.Name(), getNonSensitiveCredentialNames(provider))
 	providerConfig := &providers.ProviderConfig{
-		Credentials: make(map[string]string), // Empty - credentials come from keychain
+		Credentials: storedNonSensitiveCreds,
 		Models:      state.Models,
 	}
 
@@ -238,9 +239,12 @@ func runSet(cmd *cobra.Command, args []string) error {
 	}
 
 	// Set apiKeyHelper for providers that need dynamic credential fetching
-	// Fireworks and other providers that use ANTHROPIC_API_KEY need this
 	if providerName == "fireworks" || providerName == "anthropic" || providerName == "litellm" {
-		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s ANTHROPIC_API_KEY", providerName)
+		credName := "ANTHROPIC_API_KEY"
+		if providerName == "litellm" {
+			credName = "ANTHROPIC_AUTH_TOKEN"
+		}
+		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s %s", providerName, credName)
 	}
 
 	// Bedrock and Vertex use different auth mechanisms
@@ -336,10 +340,17 @@ func applyProviderConfig(scopeManager *config.ScopeManager, scope config.Scope, 
 	// Clear only provider-specific env vars, preserve user-defined ones
 	clearProviderEnvVars(settings.Env)
 
-	// Generate non-sensitive env vars only
-	// Remove credentials from config before generating env
+	// Generate non-sensitive env vars only; sensitive credentials are fetched via apiKeyHelper
+	nonSensitiveCreds := make(map[string]string)
+	for _, spec := range provider.RequiredEnvVars() {
+		if !spec.Sensitive {
+			if val, ok := cfg.Credentials[spec.Name]; ok && val != "" {
+				nonSensitiveCreds[spec.Name] = val
+			}
+		}
+	}
 	secureConfig := &providers.ProviderConfig{
-		Credentials: make(map[string]string), // Empty - credentials come via apiKeyHelper
+		Credentials: nonSensitiveCreds,
 		Models:      cfg.Models,
 		ExtraEnv:    cfg.ExtraEnv,
 	}
@@ -356,7 +367,11 @@ func applyProviderConfig(scopeManager *config.ScopeManager, scope config.Scope, 
 
 	// Set apiKeyHelper for providers that use API keys
 	if providerName == "fireworks" || providerName == "anthropic" || providerName == "litellm" {
-		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s ANTHROPIC_API_KEY", providerName)
+		credName := "ANTHROPIC_API_KEY"
+		if providerName == "litellm" {
+			credName = "ANTHROPIC_AUTH_TOKEN"
+		}
+		settings.APIKeyHelper = fmt.Sprintf("llmconf credential get %s %s", providerName, credName)
 	}
 
 	if err := scopeManager.SaveSettings(scope, settings); err != nil {
