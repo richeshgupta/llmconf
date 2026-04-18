@@ -1,0 +1,27 @@
+internal/providers/litellm.go
+  ab20fcb377aeb37c 120-122
+internal/cli/set.go
+  ab20fcb377aeb37c 224-225,227,243-247,343-351,353,370-374
+internal/cli/init.go
+  ab20fcb377aeb37c 204-212,214,231-235,557-566
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "26634fc0fc5074d24f74d24576bb9af5670ea4c2",
+  "prompts": {
+    "ab20fcb377aeb37c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ec255c67-d17f-4aee-b252-665d3efa837e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Richesh Gupta",
+      "messages": [],
+      "total_additions": 51,
+      "total_deletions": 17,
+      "accepted_lines": 51,
+      "overriden_lines": 0
+    }
+  }
+}
