@@ -1,23 +1,4 @@
 internal/cli/init.go
-  ab20fcb377aeb37c 6,8,563-567,569-571,573-579,581-590
+  ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:30:58.407Z 6,8,563-567,569-571,574-579,582-588,590
 ---
-{
-  "schema_version": "authorship/3.0.0",
-  "git_ai_version": "1.3.0",
-  "base_commit_sha": "66b7f79f7862a7bb1bf96dcf8affd61f30738467",
-  "prompts": {
-    "ab20fcb377aeb37c": {
-      "agent_id": {
-        "tool": "claude",
-        "id": "ec255c67-d17f-4aee-b252-665d3efa837e",
-        "model": "claude-sonnet-4-6"
-      },
-      "human_author": "Richesh Gupta",
-      "messages": [],
-      "total_additions": 27,
-      "total_deletions": 10,
-      "accepted_lines": 27,
-      "overriden_lines": 0
-    }
-  }
-}
+{"schema_version": "authorship/3.0.0", "base_commit_sha": "HEAD~1", "prompts": {"ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:30:58.407Z": {"agent_id": {"tool": "claude_code", "model": ""}, "human_author": "richesh.gupta@razorpay.com", "accepted_lines": 24, "overriden_lines": 0}}}
