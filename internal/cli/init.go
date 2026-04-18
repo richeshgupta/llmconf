@@ -233,11 +233,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 	// Set apiKeyHelper for providers that use API keys.
 	// Use absolute binary path so Claude Code can invoke it from /bin/sh regardless of PATH.
 	if provider.Name() == "fireworks" || provider.Name() == "anthropic" || provider.Name() == "litellm" {
-		credName := "ANTHROPIC_API_KEY"
-		if provider.Name() == "litellm" {
-			credName = "ANTHROPIC_AUTH_TOKEN"
-		}
-		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), provider.Name(), credName)
+		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), provider.Name(), credentialNameForProvider(provider.Name()))
 	}
 
 	// Save settings
@@ -588,6 +584,16 @@ func executablePath() string {
 	}
 
 	return "llmconf"
+}
+
+// credentialNameForProvider returns the keychain credential name that apiKeyHelper
+// should fetch for the given provider. LiteLLM uses ANTHROPIC_AUTH_TOKEN; all
+// others use ANTHROPIC_API_KEY.
+func credentialNameForProvider(providerName string) string {
+	if providerName == "litellm" {
+		return "ANTHROPIC_AUTH_TOKEN"
+	}
+	return "ANTHROPIC_API_KEY"
 }
 
 func getNonSensitiveCredentialNames(provider providers.Provider) []string {

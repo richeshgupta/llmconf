@@ -885,3 +885,35 @@ generateEnv
   "ANTHROPIC_MODEL": "claude-sonnet-4-6"
 }
 ---
+
+[TestLiteLLMProvider - 3]
+generateEnv_non_sensitive_only
+{
+  "ANTHROPIC_BASE_URL": "http://localhost:4000"
+}
+---
+
+[TestLiteLLMProvider - 4]
+generateEnv_with_model_pinning
+{
+  "ANTHROPIC_BASE_URL": "https://proxy.example.com",
+  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-6",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6"
+}
+---
+
+[TestLiteLLMProvider - 5]
+generateEnv_missing_base_url_error
+ANTHROPIC_BASE_URL is required
+---
+
+[TestLiteLLMProvider - 6]
+validate_missing_base_url
+ANTHROPIC_BASE_URL is required
+---
+
+[TestLiteLLMProvider - 7]
+validate_missing_auth_token
+ANTHROPIC_AUTH_TOKEN is required
+---

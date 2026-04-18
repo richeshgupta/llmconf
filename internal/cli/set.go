@@ -240,11 +240,7 @@ func runSet(cmd *cobra.Command, args []string) error {
 
 	// Set apiKeyHelper for providers that need dynamic credential fetching
 	if providerName == "fireworks" || providerName == "anthropic" || providerName == "litellm" {
-		credName := "ANTHROPIC_API_KEY"
-		if providerName == "litellm" {
-			credName = "ANTHROPIC_AUTH_TOKEN"
-		}
-		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), providerName, credName)
+		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), providerName, credentialNameForProvider(providerName))
 	}
 
 	// Bedrock and Vertex use different auth mechanisms
@@ -367,11 +363,7 @@ func applyProviderConfig(scopeManager *config.ScopeManager, scope config.Scope, 
 
 	// Set apiKeyHelper for providers that use API keys
 	if providerName == "fireworks" || providerName == "anthropic" || providerName == "litellm" {
-		credName := "ANTHROPIC_API_KEY"
-		if providerName == "litellm" {
-			credName = "ANTHROPIC_AUTH_TOKEN"
-		}
-		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), providerName, credName)
+		settings.APIKeyHelper = fmt.Sprintf("%s credential get %s %s", executablePath(), providerName, credentialNameForProvider(providerName))
 	}
 
 	if err := scopeManager.SaveSettings(scope, settings); err != nil {

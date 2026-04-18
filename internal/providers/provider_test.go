@@ -332,7 +332,7 @@ func TestLiteLLMProvider(t *testing.T) {
 	jsonBytes, _ := json.MarshalIndent(metadata, "", "  ")
 	snaps.MatchSnapshot(t, "metadata", string(jsonBytes))
 
-	// Test GenerateEnv
+	// Test GenerateEnv with both credentials (original test)
 	config := ProviderConfig{
 		Credentials: map[string]string{
 			"ANTHROPIC_BASE_URL":   "http://localhost:4000",
@@ -350,6 +350,68 @@ func TestLiteLLMProvider(t *testing.T) {
 
 	envJSON, _ := json.MarshalIndent(env, "", "  ")
 	snaps.MatchSnapshot(t, "generateEnv", string(envJSON))
+
+	// Bug fix: GenerateEnv must succeed with only non-sensitive credentials
+	// (simulates init/set flow where ANTHROPIC_AUTH_TOKEN is fetched via apiKeyHelper)
+	configNonSensitiveOnly := ProviderConfig{
+		Credentials: map[string]string{
+			"ANTHROPIC_BASE_URL": "http://localhost:4000",
+		},
+	}
+	envNonSensitive, err := provider.GenerateEnv(configNonSensitiveOnly)
+	if err != nil {
+		t.Fatalf("Expected GenerateEnv to succeed with only ANTHROPIC_BASE_URL, got: %v", err)
+	}
+	if _, ok := envNonSensitive["ANTHROPIC_AUTH_TOKEN"]; ok {
+		t.Fatal("ANTHROPIC_AUTH_TOKEN must not be written to env when not provided")
+	}
+	envNonSensitiveJSON, _ := json.MarshalIndent(envNonSensitive, "", "  ")
+	snaps.MatchSnapshot(t, "generateEnv_non_sensitive_only", string(envNonSensitiveJSON))
+
+	// Bug fix: GenerateEnv with model pinning + non-sensitive creds only
+	configWithModels := ProviderConfig{
+		Credentials: map[string]string{
+			"ANTHROPIC_BASE_URL": "https://proxy.example.com",
+		},
+		Models: map[string]string{
+			"sonnet": "claude-sonnet-4-6",
+			"haiku":  "claude-haiku-4-5",
+			"opus":   "claude-opus-4-6",
+		},
+	}
+	envWithModels, err := provider.GenerateEnv(configWithModels)
+	if err != nil {
+		t.Fatalf("Expected GenerateEnv with models to succeed, got: %v", err)
+	}
+	envWithModelsJSON, _ := json.MarshalIndent(envWithModels, "", "  ")
+	snaps.MatchSnapshot(t, "generateEnv_with_model_pinning", string(envWithModelsJSON))
+
+	// GenerateEnv must fail when ANTHROPIC_BASE_URL is missing
+	_, err = provider.GenerateEnv(ProviderConfig{
+		Credentials: make(map[string]string),
+	})
+	if err == nil {
+		t.Fatal("Expected GenerateEnv to fail when ANTHROPIC_BASE_URL is missing")
+	}
+	snaps.MatchSnapshot(t, "generateEnv_missing_base_url_error", err.Error())
+
+	// Validate must fail when ANTHROPIC_BASE_URL is missing
+	err = provider.Validate(ProviderConfig{Credentials: map[string]string{
+		"ANTHROPIC_AUTH_TOKEN": "sk-test",
+	}})
+	if err == nil {
+		t.Fatal("Expected Validate to fail when ANTHROPIC_BASE_URL is missing")
+	}
+	snaps.MatchSnapshot(t, "validate_missing_base_url", err.Error())
+
+	// Validate must fail when ANTHROPIC_AUTH_TOKEN is missing
+	err = provider.Validate(ProviderConfig{Credentials: map[string]string{
+		"ANTHROPIC_BASE_URL": "http://localhost:4000",
+	}})
+	if err == nil {
+		t.Fatal("Expected Validate to fail when ANTHROPIC_AUTH_TOKEN is missing")
+	}
+	snaps.MatchSnapshot(t, "validate_missing_auth_token", err.Error())
 }
 
 func TestProviderModelSuggestions(t *testing.T) {
