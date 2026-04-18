@@ -1,0 +1,12 @@
+internal/cli/apikey_helper_test.go
+  ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:39:23.439Z 1,3,5-16,18-26
+internal/cli/executable_path_test.go
+  ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:39:16.197Z 1,3-7,9-10,12-14,16-18,20-27
+internal/cli/init.go
+  ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:38:48.848Z 236,589-597
+internal/cli/set.go
+  ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:38:53.905Z 243,366
+internal/providers/provider_test.go
+  ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:39:10.000Z 335,354-369,371-387,389-396,398-405,407-414
+---
+{"schema_version": "authorship/3.0.0", "base_commit_sha": "HEAD~1", "prompts": {"ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:39:23.439Z": {"agent_id": {"tool": "claude_code", "model": ""}, "human_author": "richesh.gupta@razorpay.com", "accepted_lines": 23, "overriden_lines": 0}, "ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:39:16.197Z": {"agent_id": {"tool": "claude_code", "model": ""}, "human_author": "richesh.gupta@razorpay.com", "accepted_lines": 22, "overriden_lines": 0}, "ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:38:48.848Z": {"agent_id": {"tool": "claude_code", "model": ""}, "human_author": "richesh.gupta@razorpay.com", "accepted_lines": 10, "overriden_lines": 0}, "ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:38:53.905Z": {"agent_id": {"tool": "claude_code", "model": ""}, "human_author": "richesh.gupta@razorpay.com", "accepted_lines": 2, "overriden_lines": 0}, "ec255c67-d17f-4aee-b252-665d3efa837e:2026-04-18T05:39:10.000Z": {"agent_id": {"tool": "claude_code", "model": ""}, "human_author": "richesh.gupta@razorpay.com", "accepted_lines": 58, "overriden_lines": 0}}}
